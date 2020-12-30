@@ -1,3 +1,15 @@
 p {
   font-family: Lato;
 }
+
+.note-input {
+  width: 100%;
+  height: 100px;
+  margin-top: 10px;
+}
+
+.save-indicator {
+  display: flex;
+  flex-direction: row-reverse;
+  font-size: 14px;
+}

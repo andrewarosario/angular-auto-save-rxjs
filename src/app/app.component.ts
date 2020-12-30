@@ -50,8 +50,8 @@ export class AppComponent {
     );
 
     this.saveIndicator$ = merge(savesInProgress$, savesCompleted$).pipe(
-      startWith("Todas as mudanças foram salvas"),
-      switchAll()
+      switchAll(),
+      startWith("Todas as mudanças foram salvas")
     );
 
     inputToSave$.subscribe(console.log);

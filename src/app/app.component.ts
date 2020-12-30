@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { merge, Observable, of } from "rxjs";
+import { concat, defer, empty, merge, Observable, of } from "rxjs";
 import {
   debounceTime,
   delay,
@@ -13,6 +13,7 @@ import {
   switchAll,
   tap
 } from "rxjs/operators";
+import { format } from "date-fns";
 
 @Component({
   selector: "my-app",
@@ -46,7 +47,15 @@ export class AppComponent {
       mergeMap(value => this.saveChanges(value)),
       tap(() => this.saveCount--),
       filter(() => !this.saveCount),
-      mapTo(of("Salvo!"))
+      mapTo(
+        concat(
+          of("Salvo!"),
+          empty().pipe(delay(2000)),
+          defer(() =>
+            of(`Última Atualização: ${format(Date.now(), "dd/MM/yyyy hh:mm")}`)
+          )
+        )
+      )
     );
 
     this.saveIndicator$ = merge(savesInProgress$, savesCompleted$).pipe(

@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { of } from "rxjs";
+import { debounceTime, distinctUntilChanged } from "rxjs/operators";
 
 @Component({
   selector: "my-app",
@@ -16,4 +17,13 @@ import { of } from "rxjs";
 export class AppComponent {
   note = new FormControl("");
   saveIndicator$ = of("Todas as mudanças foram salvas");
+
+  ngOnInit() {
+    const inputToSave$ = this.note.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    );
+
+    inputToSave$.subscribe(console.log);
+  }
 }

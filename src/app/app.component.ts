@@ -1,7 +1,18 @@
 import { Component } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { of } from "rxjs";
-import { debounceTime, delay,  distinctUntilChanged, mapTo,  mergeMap,    share, tap } from "rxjs/operators";
+import { merge, Observable, of } from "rxjs";
+import {
+  debounceTime,
+  delay,
+  distinctUntilChanged,
+  filter,
+  mapTo,
+  mergeMap,
+  share,
+  startWith,
+  switchAll,
+  tap
+} from "rxjs/operators";
 
 @Component({
   selector: "my-app",
@@ -16,7 +27,7 @@ import { debounceTime, delay,  distinctUntilChanged, mapTo,  mergeMap,    share,
 })
 export class AppComponent {
   note = new FormControl("");
-  saveIndicator$ = of("Todas as mudanças foram salvas");
+  saveIndicator$: Observable<string>;
   saveCount = 0;
 
   ngOnInit() {
@@ -27,19 +38,26 @@ export class AppComponent {
     );
 
     const savesInProgress$ = inputToSave$.pipe(
-      mapTo(of("Saving")),
-      tap(() => this.saveCount++),
+      mapTo(of("Salvando...")),
+      tap(() => this.saveCount++)
     );
 
     const savesCompleted$ = inputToSave$.pipe(
       mergeMap(value => this.saveChanges(value)),
       tap(() => this.saveCount--),
-    )
+      filter(() => !this.saveCount),
+      mapTo(of("Salvo!"))
+    );
+
+    this.saveIndicator$ = merge(savesInProgress$, savesCompleted$).pipe(
+      startWith("Todas as mudanças foram salvas"),
+      switchAll()
+    );
 
     inputToSave$.subscribe(console.log);
   }
 
   saveChanges(value: string) {
     return of(value).pipe(delay(1500));
-  };
+  }
 }
